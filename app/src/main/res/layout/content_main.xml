@@ -19,7 +19,6 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="20dp"
         android:gravity="left"
-        android:includeFontPadding="false"
         android:text="@string/init_tip"
         android:textColor="#000"
         android:textIsSelectable="true"
@@ -32,7 +31,6 @@
         android:layout_centerInParent="true"
         android:layout_marginTop="20dp"
         android:gravity="left"
-        android:includeFontPadding="false"
         android:paddingBottom="10dp"
         android:paddingTop="10dp"
         android:textColor="#000"
@@ -41,6 +39,19 @@
 
     <TextView
         android:id="@+id/text_view_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="20dp"
+        android:gravity="left"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:textColor="#000"
+        android:textIsSelectable="true"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/text_view_3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"

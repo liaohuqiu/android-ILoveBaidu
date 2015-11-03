@@ -2,4 +2,7 @@
     <string name="app_name">ILoveBaidu</string>
     <string name="action_about">About</string>
     <string name="init_tip">Click the urls below to check if there is any WormHoles in your mobile</string>
+    <string name="info_many" formatted="false">There are %s dangerous APPs in your phone. Click to remove.</string>
+    <string name="info_one" formatted="false">There is 1 dangerous APP in your phone. Click to remove it.</string>
+    <string name="info_none" formatted="false">There is no dangerous APP in your phone.</string>
 </resources>

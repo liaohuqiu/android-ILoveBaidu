@@ -8,4 +8,6 @@
 
 4.  clear.sh 使用 adb uninstall 命令卸载 package-list.txt 中的所有 APP。
 
-我很爱百度，因为你作恶多端。
+### 截图
+
+<div><img src='https://raw.githubusercontent.com/liaohuqiu/android-ILoveBaidu/master/art/demo.gif' width="300px" style='border: #f1f1f1 solid 1px'/></div>
