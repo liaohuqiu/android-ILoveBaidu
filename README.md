@@ -6,7 +6,7 @@
 
 3.  package-list.txt 为百度系的 Android APP 的 package 列表，欢迎补充；
 
-4.  clear.sh 使用 adb uninstall 命令卸载 package-list.txt 中的所有 APP。
+4.  clean.sh 使用 adb uninstall 命令卸载 package-list.txt 中的所有 APP。
 
 ### 截图
 
