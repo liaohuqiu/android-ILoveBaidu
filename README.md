@@ -1,3 +1,5 @@
+[![Android Gems](http://www.android-gems.com/badge/liaohuqiu/android-ILoveBaidu.svg?branch=master)](http://www.android-gems.com/lib/liaohuqiu/android-ILoveBaidu)
+
 本项目可以:
 
 1.  检查本地是否有 WormHole；
