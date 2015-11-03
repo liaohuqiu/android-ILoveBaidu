@@ -22,10 +22,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import in.srain.cube.concurrent.SimpleExecutor;
 import in.srain.cube.concurrent.SimpleTask;
@@ -37,7 +34,7 @@ public final class MainActivity extends AppCompatActivity {
     private static final String QIU_BAI_WAN_I_LOVE_BAIDU = "https://github.com/liaohuqiu/android-ILoveBaidu";
 
     //使用包名查看器，从百度手机市场搜索"百度",可以查看到百度的大部分应用！
-    private String[] start_baidu_app = new String[]{
+    private static final String[] START_BAIDU_APP = new String[]{
             "com.baidu",//百度大多应用
             "com.nuomi",//百度糯米，百度糯米商家
             "com.ting.mp3",//百度音乐,千千动听
@@ -67,15 +64,22 @@ public final class MainActivity extends AppCompatActivity {
             openUrl(url);
         }
     };
+
     List<String> mDirtyPackageList = new ArrayList<String>();
+
     List<String> mRemoteDirtyPackageList = new ArrayList<String>();
+
     private TextView mInfoTextView;
+
     private final SimpleTask mSimpleTask = new SimpleTask() {
 
 
         @Override
         public void doInBackground() {
+
             mRemoteDirtyPackageList = new ArrayList<String>();
+            mRemoteDirtyPackageList.addAll(Arrays.asList(START_BAIDU_APP));
+
             mDirtyPackageList = new ArrayList<String>();
             try {
                 URL url = new URL(BAIDU_FAMILY_APP_LIST);
@@ -86,16 +90,9 @@ public final class MainActivity extends AppCompatActivity {
                         str = str.substring(0, str.length() - 2);
                     }
                     mRemoteDirtyPackageList.add(str);
-                    for (String startlogo:start_baidu_app){
-                        mRemoteDirtyPackageList.add(startlogo);
-                    }
                 }
                 in.close();
             } catch (IOException e) {
-                //Network failure,load data
-                for (String startlogo:start_baidu_app){
-                    mRemoteDirtyPackageList.add(startlogo);
-                }
             }
 
             List<String> installedList = getPackageNameList();
@@ -106,7 +103,6 @@ public final class MainActivity extends AppCompatActivity {
                 }
             }
         }
-
 
         private boolean isDirty(String packageName) {
             for (int i = 0; i < mRemoteDirtyPackageList.size(); i++) {
@@ -134,6 +130,8 @@ public final class MainActivity extends AppCompatActivity {
         }
     };
 
+    private UnInstalledReceiver mUninstalledReceiver;
+
     private void uninstallOneDirtyAPP() {
         if (mDirtyPackageList.size() > 0) {
             String first = mDirtyPackageList.get(0);
@@ -154,10 +152,11 @@ public final class MainActivity extends AppCompatActivity {
         WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
 
         int ipAddress = wifiManager.getConnectionInfo().getIpAddress();
-
-        final String formattedIpAddress = String.format("%d.%d.%d.%d", (ipAddress & 0xff), (ipAddress >> 8 & 0xff),
+        String formattedIpAddress = String.format("%d.%d.%d.%d", (ipAddress & 0xff), (ipAddress >> 8 & 0xff),
                 (ipAddress >> 16 & 0xff), (ipAddress >> 24 & 0xff));
 
+        // force to set to localhost
+        formattedIpAddress = "127.0.0.1";
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -236,14 +235,12 @@ public final class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-
-
     private void openUrl(String url) {
         try {
             Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(myIntent);
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             runOnUiThread(new Runnable() {
                 @Override
@@ -255,22 +252,21 @@ public final class MainActivity extends AppCompatActivity {
 
     }
 
-    private UnInstalledReceiver installedReceiver;
     @Override
     protected void onStart() {
         super.onStart();
-        installedReceiver = new UnInstalledReceiver();
+        mUninstalledReceiver = new UnInstalledReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
         filter.addDataScheme("package");
-        this.registerReceiver(installedReceiver, filter);
+        this.registerReceiver(mUninstalledReceiver, filter);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(installedReceiver!=null){
-            this.unregisterReceiver(installedReceiver);
+        if (mUninstalledReceiver != null) {
+            this.unregisterReceiver(mUninstalledReceiver);
         }
     }
 
@@ -285,20 +281,17 @@ public final class MainActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if (intent!=null){
-                            String packageName = intent.getDataString();
-                            if (packageName!=null&&!packageName.replaceAll(" ","").equals("")&&packageName.contains("package:")){
-                                String packname = packageName.replaceAll("package:", "");
-                                Toast.makeText(MainActivity.this, getResources().getString(R.string.uninstall_success) +" "+ packname, Toast.LENGTH_SHORT).show();
+                        if (intent != null) {
+                            String packageNameRaw = intent.getDataString();
+                            if (packageNameRaw != null && !packageNameRaw.replaceAll(" ", "").equals("") && packageNameRaw.contains("package:")) {
+                                String packageName = packageNameRaw.replaceAll("package:", "");
+                                Toast.makeText(MainActivity.this, getString(R.string.uninstall_success) + " " + packageName, Toast.LENGTH_SHORT).show();
                                 uninstallOneDirtyAPP();
                             }
                         }
                     }
                 });
-
             }
         }
     }
-
 }
-
