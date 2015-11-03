@@ -12,21 +12,23 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import in.srain.cube.concurrent.SimpleExecutor;
-import in.srain.cube.concurrent.SimpleTask;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
+import in.srain.cube.concurrent.SimpleExecutor;
+import in.srain.cube.concurrent.SimpleTask;
 
 public final class MainActivity extends AppCompatActivity {
 
@@ -34,7 +36,21 @@ public final class MainActivity extends AppCompatActivity {
     private static final String BAIDU_FAMILY_APP_LIST = "https://raw.githubusercontent.com/liaohuqiu/android-ILoveBaidu/master/package-list.txt";
     private static final String QIU_BAI_WAN_I_LOVE_BAIDU = "https://github.com/liaohuqiu/android-ILoveBaidu";
 
-    private static final String TAG = "QIU_BAI_WAN";
+    //使用包名查看器，从百度手机市场搜索"百度",可以查看到百度的大部分应用！
+    private String[] start_baidu_app = new String[]{
+            "com.baidu",//百度大多应用
+            "com.nuomi",//百度糯米，百度糯米商家
+            "com.ting.mp3",//百度音乐,千千动听
+            "com.duoku",//百度星玩家，百度多酷棋牌，百度游戏
+            "com.dragon.android",//百度手机助手（原91手机助手）
+            "cn.opda.a.phonoalbumshoushou",//百度手机卫士
+            "com.dianxinos.optimizer",//百度卫士极客版
+            "com.chuanke.ikk",//百度传课
+            "cn.jingling.motu.photowonder",//百度魔图
+            "com.nd.assistance",//百度连接助手
+            "com.hiapk.marketpho"//安卓市场
+    };
+
     private final View.OnClickListener sClickHandler = new View.OnClickListener() {
 
         @Override
@@ -70,9 +86,16 @@ public final class MainActivity extends AppCompatActivity {
                         str = str.substring(0, str.length() - 2);
                     }
                     mRemoteDirtyPackageList.add(str);
+                    for (String startlogo:start_baidu_app){
+                        mRemoteDirtyPackageList.add(startlogo);
+                    }
                 }
                 in.close();
             } catch (IOException e) {
+                //Network failure,load data
+                for (String startlogo:start_baidu_app){
+                    mRemoteDirtyPackageList.add(startlogo);
+                }
             }
 
             List<String> installedList = getPackageNameList();
@@ -83,6 +106,7 @@ public final class MainActivity extends AppCompatActivity {
                 }
             }
         }
+
 
         private boolean isDirty(String packageName) {
             for (int i = 0; i < mRemoteDirtyPackageList.size(); i++) {
@@ -266,8 +290,6 @@ public final class MainActivity extends AppCompatActivity {
                             if (packageName!=null&&!packageName.replaceAll(" ","").equals("")&&packageName.contains("package:")){
                                 String packname = packageName.replaceAll("package:", "");
                                 Toast.makeText(MainActivity.this, getResources().getString(R.string.uninstall_success) +" "+ packname, Toast.LENGTH_SHORT).show();
-                                Log.d(TAG, packageName);
-                                Log.d(TAG, packname);
                                 uninstallOneDirtyAPP();
                             }
                         }
