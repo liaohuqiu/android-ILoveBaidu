@@ -1,0 +1,3 @@
+com.baidu.*
+com.ting.mp3.oemc.android
+com.hiapk.marketpho

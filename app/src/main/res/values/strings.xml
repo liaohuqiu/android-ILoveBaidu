@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ILoveBaidu</string>
+    <string name="action_about">About</string>
+    <string name="init_tip">Click the urls below to check if there is any WormHoles in your mobile</string>
+</resources>

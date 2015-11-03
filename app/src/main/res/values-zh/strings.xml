@@ -1,0 +1,4 @@
+<resources>
+    <string name="action_about">关于</string>
+    <string name="init_tip">点击下面的两个地址查看本机是否有WormHole虫洞</string>
+</resources>
