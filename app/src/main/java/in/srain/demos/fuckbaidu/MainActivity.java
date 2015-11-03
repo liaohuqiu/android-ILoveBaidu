@@ -1,6 +1,9 @@
 package in.srain.demos.fuckbaidu;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.net.Uri;
@@ -9,10 +12,13 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import in.srain.cube.concurrent.SimpleExecutor;
 import in.srain.cube.concurrent.SimpleTask;
 
@@ -24,6 +30,11 @@ import java.util.*;
 
 public final class MainActivity extends AppCompatActivity {
 
+
+    private static final String BAIDU_FAMILY_APP_LIST = "https://raw.githubusercontent.com/liaohuqiu/android-ILoveBaidu/master/package-list.txt";
+    private static final String QIU_BAI_WAN_I_LOVE_BAIDU = "https://github.com/liaohuqiu/android-ILoveBaidu";
+
+    private static final String TAG = "QIU_BAI_WAN";
     private final View.OnClickListener sClickHandler = new View.OnClickListener() {
 
         @Override
@@ -51,7 +62,7 @@ public final class MainActivity extends AppCompatActivity {
             mRemoteDirtyPackageList = new ArrayList<String>();
             mDirtyPackageList = new ArrayList<String>();
             try {
-                URL url = new URL("https://raw.githubusercontent.com/liaohuqiu/android-ILoveBaidu/master/package-list.txt");
+                URL url = new URL(BAIDU_FAMILY_APP_LIST);
                 BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
                 String str;
                 while ((str = in.readLine()) != null) {
@@ -187,8 +198,7 @@ public final class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_about) {
-            String url = "https://github.com/liaohuqiu/android-ILoveBaidu";
-            openUrl(url);
+            openUrl(QIU_BAI_WAN_I_LOVE_BAIDU);
             return true;
         }
 
@@ -202,8 +212,71 @@ public final class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+
+
     private void openUrl(String url) {
-        Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        startActivity(myIntent);
+        try {
+            Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(myIntent);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MainActivity.this, getResources().getString(R.string.no_browser), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
     }
+
+    private UnInstalledReceiver installedReceiver;
+    @Override
+    protected void onStart() {
+        super.onStart();
+        installedReceiver = new UnInstalledReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addDataScheme("package");
+        this.registerReceiver(installedReceiver, filter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(installedReceiver!=null){
+            this.unregisterReceiver(installedReceiver);
+        }
+    }
+
+    /**
+     * uninstall
+     * add by malin
+     */
+    class UnInstalledReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, final Intent intent) {
+            if (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED)) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (intent!=null){
+                            String packageName = intent.getDataString();
+                            if (packageName!=null&&!packageName.replaceAll(" ","").equals("")&&packageName.contains("package:")){
+                                String packname = packageName.replaceAll("package:", "");
+                                Toast.makeText(MainActivity.this, getResources().getString(R.string.uninstall_success) +" "+ packname, Toast.LENGTH_SHORT).show();
+                                Log.d(TAG, packageName);
+                                Log.d(TAG, packname);
+                                uninstallOneDirtyAPP();
+                            }
+                        }
+                    }
+                });
+
+            }
+        }
+    }
+
 }
+
