@@ -1,6 +1,9 @@
 package in.srain.demos.fuckbaidu;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.net.Uri;
@@ -13,16 +16,40 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import in.srain.cube.concurrent.SimpleExecutor;
-import in.srain.cube.concurrent.SimpleTask;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
+import in.srain.cube.concurrent.SimpleExecutor;
+import in.srain.cube.concurrent.SimpleTask;
 
 public final class MainActivity extends AppCompatActivity {
+
+
+    private static final String BAIDU_FAMILY_APP_LIST = "https://raw.githubusercontent.com/liaohuqiu/android-ILoveBaidu/master/package-list.txt";
+    private static final String QIU_BAI_WAN_I_LOVE_BAIDU = "https://github.com/liaohuqiu/android-ILoveBaidu";
+
+    //使用包名查看器，从百度手机市场搜索"百度",可以查看到百度的大部分应用！
+    private String[] start_baidu_app = new String[]{
+            "com.baidu",//百度大多应用
+            "com.nuomi",//百度糯米，百度糯米商家
+            "com.ting.mp3",//百度音乐,千千动听
+            "com.duoku",//百度星玩家，百度多酷棋牌，百度游戏
+            "com.dragon.android",//百度手机助手（原91手机助手）
+            "cn.opda.a.phonoalbumshoushou",//百度手机卫士
+            "com.dianxinos.optimizer",//百度卫士极客版
+            "com.chuanke.ikk",//百度传课
+            "cn.jingling.motu.photowonder",//百度魔图
+            "com.nd.assistance",//百度连接助手
+            "com.hiapk.marketpho"//安卓市场
+    };
 
     private final View.OnClickListener sClickHandler = new View.OnClickListener() {
 
@@ -51,7 +78,7 @@ public final class MainActivity extends AppCompatActivity {
             mRemoteDirtyPackageList = new ArrayList<String>();
             mDirtyPackageList = new ArrayList<String>();
             try {
-                URL url = new URL("https://raw.githubusercontent.com/liaohuqiu/android-ILoveBaidu/master/package-list.txt");
+                URL url = new URL(BAIDU_FAMILY_APP_LIST);
                 BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
                 String str;
                 while ((str = in.readLine()) != null) {
@@ -59,9 +86,16 @@ public final class MainActivity extends AppCompatActivity {
                         str = str.substring(0, str.length() - 2);
                     }
                     mRemoteDirtyPackageList.add(str);
+                    for (String startlogo:start_baidu_app){
+                        mRemoteDirtyPackageList.add(startlogo);
+                    }
                 }
                 in.close();
             } catch (IOException e) {
+                //Network failure,load data
+                for (String startlogo:start_baidu_app){
+                    mRemoteDirtyPackageList.add(startlogo);
+                }
             }
 
             List<String> installedList = getPackageNameList();
@@ -72,6 +106,7 @@ public final class MainActivity extends AppCompatActivity {
                 }
             }
         }
+
 
         private boolean isDirty(String packageName) {
             for (int i = 0; i < mRemoteDirtyPackageList.size(); i++) {
@@ -187,8 +222,7 @@ public final class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_about) {
-            String url = "https://github.com/liaohuqiu/android-ILoveBaidu";
-            openUrl(url);
+            openUrl(QIU_BAI_WAN_I_LOVE_BAIDU);
             return true;
         }
 
@@ -202,8 +236,69 @@ public final class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+
+
     private void openUrl(String url) {
-        Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-        startActivity(myIntent);
+        try {
+            Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(myIntent);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MainActivity.this, getResources().getString(R.string.no_browser), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
     }
+
+    private UnInstalledReceiver installedReceiver;
+    @Override
+    protected void onStart() {
+        super.onStart();
+        installedReceiver = new UnInstalledReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addDataScheme("package");
+        this.registerReceiver(installedReceiver, filter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(installedReceiver!=null){
+            this.unregisterReceiver(installedReceiver);
+        }
+    }
+
+    /**
+     * uninstall
+     * add by malin
+     */
+    class UnInstalledReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, final Intent intent) {
+            if (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED)) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (intent!=null){
+                            String packageName = intent.getDataString();
+                            if (packageName!=null&&!packageName.replaceAll(" ","").equals("")&&packageName.contains("package:")){
+                                String packname = packageName.replaceAll("package:", "");
+                                Toast.makeText(MainActivity.this, getResources().getString(R.string.uninstall_success) +" "+ packname, Toast.LENGTH_SHORT).show();
+                                uninstallOneDirtyAPP();
+                            }
+                        }
+                    }
+                });
+
+            }
+        }
+    }
+
 }
+

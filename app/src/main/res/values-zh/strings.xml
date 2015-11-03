@@ -4,4 +4,6 @@
     <string name="info_many" formatted="false">你手机上有 %s 个不安全应用。点击卸载。</string>
     <string name="info_one" formatted="false">你手机上有一个不安全应用。点击卸载。</string>
     <string name="info_none" formatted="false">你手机上没有不安全应用。</string>
+    <string name="no_browser">您手机上没有浏览器</string>
+    <string name="uninstall_success">成功卸载</string>
 </resources>
