@@ -13,6 +13,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import in.srain.cube.concurrent.SimpleExecutor;
 import in.srain.cube.concurrent.SimpleTask;
 
@@ -37,7 +39,18 @@ public final class MainActivity extends AppCompatActivity {
                 return;
             }
             String url = (String) object;
-            openUrl(url);
+            //openUrl(url);
+
+            List<String> list = new ArrayList<>();
+            list.add(url);
+            final TextView textView = (TextView) v;
+            CheckWormHole.check(list, new CheckWormHole.Callback() {
+                @Override
+                public void wormHoleCheckResult(String url, int resultCode, String message) {
+                    textView.setText(textView.getText() + (CheckWormHole.isDangerous(resultCode) ? "  危险" : "  安全"));
+                }
+            });
+
         }
     };
     List<String> mDirtyPackageList = new ArrayList<String>();
