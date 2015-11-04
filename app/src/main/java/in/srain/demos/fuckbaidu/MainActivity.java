@@ -13,16 +13,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import in.srain.cube.concurrent.SimpleExecutor;
-import in.srain.cube.concurrent.SimpleTask;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
+import in.srain.cube.concurrent.SimpleExecutor;
+import in.srain.cube.concurrent.SimpleTask;
 
 public final class MainActivity extends AppCompatActivity {
 
@@ -47,7 +49,13 @@ public final class MainActivity extends AppCompatActivity {
             CheckWormHole.check(list, new CheckWormHole.Callback() {
                 @Override
                 public void wormHoleCheckResult(String url, int resultCode, String message) {
-                    textView.setText(textView.getText() + (CheckWormHole.isDangerous(resultCode) ? "  危险" : "  安全"));
+                    if (CheckWormHole.isDangerous(resultCode)) {
+                        textView.setText(textView.getText() + CheckWormHole.NEW_LINE + getString(R.string.url_dangerous));
+                        textView.setTextColor(getResources().getColor(R.color.urlDangerous));
+                    } else {
+                        textView.setText(textView.getText() + CheckWormHole.NEW_LINE + getString(R.string.url_safe));
+                        textView.setTextColor(getResources().getColor(R.color.urlSafe));
+                    }
                 }
             });
 
