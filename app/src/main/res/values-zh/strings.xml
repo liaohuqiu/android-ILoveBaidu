@@ -4,6 +4,6 @@
     <string name="info_many" formatted="false">你手机上有 %s 个不安全应用。点击卸载。</string>
     <string name="info_one" formatted="false">你手机上有一个不安全应用。点击卸载。</string>
     <string name="info_none" formatted="false">你手机上没有不安全应用。</string>
-    <string name="url_safe"> 安全</string>
-    <string name="url_dangerous"> 危险</string>
+    <string name="url_safe">安全</string>
+    <string name="url_dangerous">危险</string>
 </resources>

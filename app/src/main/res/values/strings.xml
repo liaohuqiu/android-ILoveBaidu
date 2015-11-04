@@ -6,6 +6,6 @@
     <string name="info_one" formatted="false">There is 1 dangerous APP in your phone. Click to remove it.</string>
     <string name="info_none" formatted="false">There is no dangerous APP in your phone.</string>
 
-    <string name="url_safe"> Safe</string>
-    <string name="url_dangerous"> Dangerous</string>
+    <string name="url_safe">Safe</string>
+    <string name="url_dangerous">Dangerous</string>
 </resources>
